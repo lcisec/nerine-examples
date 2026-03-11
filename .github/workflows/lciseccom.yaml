@@ -7,10 +7,10 @@ jobs:
     name: Execute Nerine Tests
     runs-on: ubuntu-latest
     env:
-      NERINE_LICENSE: secrets.NERINE_LICENSE_KEY
+      NERINE_LICENSE: ${{ secrets.NERINE_LICENSE_KEY }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Download Nerine
       run: |
