@@ -1,6 +1,6 @@
 name: lcisec.com Tests
 
-on: workflow-dispatch
+on: workflow_dispatch
 
 jobs:
   test-site:
