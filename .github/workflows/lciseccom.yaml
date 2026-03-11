@@ -1,0 +1,27 @@
+name: lcisec.com Tests
+
+on: workflow_dispatch
+
+jobs:
+  test-site:
+    name: Execute Nerine Tests
+    runs-on: ubuntu-latest
+    env:
+      NERINE_LICENSE: secrets.NERINE_LICENSE_KEY
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download Nerine
+      run: |
+        curl -L -o nerine-ent_linux_amd64.tar.gz https://lcisec.dev/download/linux/amd64/nerine-ent/${{ secrets.NERINE_LICENSE_ID }}
+        tar -xvzf nerine-ent_linux_amd64.tar.gz
+
+    - name: Verify Nerine
+      run: |
+        apt install -y minisign
+        minisign -Vm nerine-ent_linux_amd64 -P env.NERINE_PUBLIC_KEY
+
+    - name: Execute Binary
+      run: |
+        nerine-ent lciseccom

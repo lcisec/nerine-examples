@@ -1,0 +1,42 @@
+#-----------------------------------------------------------------------------
+# Review all of the main pages and ensure the navigation elements are correct.
+#-----------------------------------------------------------------------------
+GET https://lcisec.com/
+compare body contains <li><a href="/">Home</a></li>
+compare body contains <li><a href="/strategic">Strategic</a></li>
+compare body contains <li><a href="/tactical">Tactical</a></li>
+compare body contains <li><a href="https://lcisec.dev">Development</a></li>
+compare body contains <li><a href="/blog">Blog</a></li>
+compare body contains <li><a href="/contact">Contact</a></li>
+
+GET https://lcisec.com/strategic
+compare body contains <li><a href="/">Home</a></li>
+compare body contains <li><a href="/strategic">Strategic</a></li>
+compare body contains <li><a href="/tactical">Tactical</a></li>
+compare body contains <li><a href="https://lcisec.dev">Development</a></li>
+compare body contains <li><a href="/blog">Blog</a></li>
+compare body contains <li><a href="/contact">Contact</a></li>
+
+GET https://lcisec.com/tactical
+compare body contains <li><a href="/">Home</a></li>
+compare body contains <li><a href="/strategic">Strategic</a></li>
+compare body contains <li><a href="/tactical">Tactical</a></li>
+compare body contains <li><a href="https://lcisec.dev">Development</a></li>
+compare body contains <li><a href="/blog">Blog</a></li>
+compare body contains <li><a href="/contact">Contact</a></li>
+
+GET https://lcisec.com/blog
+compare body contains <li><a href="/">Home</a></li>
+compare body contains <li><a href="/strategic">Strategic</a></li>
+compare body contains <li><a href="/tactical">Tactical</a></li>
+compare body contains <li><a href="https://lcisec.dev">Development</a></li>
+compare body contains <li><a href="/blog">Blog</a></li>
+compare body contains <li><a href="/contact">Contact</a></li>
+
+GET https://lcisec.com/contact
+compare body contains <li><a href="/">Home</a></li>
+compare body contains <li><a href="/strategic">Strategic</a></li>
+compare body contains <li><a href="/tactical">Tactical</a></li>
+compare body contains <li><a href="https://lcisec.dev">Development</a></li>
+compare body contains <li><a href="/blog">Blog</a></li>
+compare body contains <li><a href="/contact">Contact</a></li>
