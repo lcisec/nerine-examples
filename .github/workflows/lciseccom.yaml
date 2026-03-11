@@ -19,7 +19,7 @@ jobs:
 
     - name: Verify Nerine
       run: |
-        apt install -y minisign
+        sudo apt install -y minisign
         minisign -Vm nerine-ent_linux_amd64 -P env.NERINE_PUBLIC_KEY
 
     - name: Execute Binary
