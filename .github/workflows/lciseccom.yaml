@@ -14,7 +14,7 @@ jobs:
 
     - name: Download Nerine
       run: |
-        curl -L -o nerine-ent_linux_amd64.tar.gz https://lcisec.dev/download/linux/amd64/nerine-ent/${{ secrets.NERINE_LICENSE_ID }}
+        curl -L -o nerine-ent_linux_amd64.tar.gz https://lcisec.dev/download/nerine-ent/linux/amd64/${{ secrets.NERINE_LICENSE_ID }}
         tar -xvzf nerine-ent_linux_amd64.tar.gz
 
     - name: Verify Nerine
