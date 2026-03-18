@@ -1,0 +1,6 @@
+# The script below will return an error if the given target server cannot be
+# reached. With Nerine Professional and Enterprise you can use the -s flag to
+# set a single target server or the -S flag to pass a file with a newline
+# delimited list of servers.
+
+GET ${TARGET_SERVER}/
