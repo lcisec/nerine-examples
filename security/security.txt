@@ -1,0 +1,25 @@
+#-----------------------------------------------------------------------------
+# Check CSP Header for compliance
+#-----------------------------------------------------------------------------
+
+GET ${TARGET_SERVER}/
+compare header content-security-policy !contains default-src 'self'
+compare header content-security-policy contains default-src *
+compare header content-security-policy contains unsafe-inline
+compare header content-security-policy contains unsafe-eval
+
+#-----------------------------------------------------------------------------
+# Ensure security headers are set as expected
+#-----------------------------------------------------------------------------
+GET {TARGET_SERVER}/
+compare header Strict-Transport-Security ~ max-age=[0-9]+; includeSubDomains; preload
+
+
+#-----------------------------------------------------------------------------
+# Ensure expected well-known files are present
+#-----------------------------------------------------------------------------
+GET ${TARGET_SERVER}/.well-known/security.txt
+
+GET ${TARGET_SERVER}/.well-known/openid-configuration
+
+GET ${TARGET_SERVER}/.well-known/openpgpkey
