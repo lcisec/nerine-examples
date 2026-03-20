@@ -1,4 +1,4 @@
-name: Ping Tests
+name: Security Tests
 
 on: workflow_dispatch
 
