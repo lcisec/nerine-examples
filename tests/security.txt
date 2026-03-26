@@ -11,7 +11,7 @@ compare header content-security-policy contains unsafe-eval
 #-----------------------------------------------------------------------------
 # Ensure security headers are set as expected
 #-----------------------------------------------------------------------------
-GET {TARGET_SERVER}/
+GET ${TARGET_SERVER}/
 compare header Strict-Transport-Security ~ max-age=[0-9]+; includeSubDomains; preload
 
 

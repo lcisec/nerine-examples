@@ -24,4 +24,4 @@ jobs:
 
     - name: Execute Binary
       run: |
-        ./nerine-ent_linux_amd64 lciseccom
+        ./nerine-ent_linux_amd64 tests/nav.txt
