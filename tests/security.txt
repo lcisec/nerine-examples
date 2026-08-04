@@ -1,12 +1,13 @@
 #-----------------------------------------------------------------------------
-# Check CSP Header for compliance
+# Check the CSP header for compliance. The policy must fall back to 'self' and
+# must not allow a wildcard source, inline scripts, or eval.
 #-----------------------------------------------------------------------------
 
 GET ${TARGET_SERVER}/
-compare header content-security-policy !contains default-src 'self'
-compare header content-security-policy contains default-src *
-compare header content-security-policy contains unsafe-inline
-compare header content-security-policy contains unsafe-eval
+compare header content-security-policy contains default-src 'self'
+compare header content-security-policy !contains default-src *
+compare header content-security-policy !contains unsafe-inline
+compare header content-security-policy !contains unsafe-eval
 
 #-----------------------------------------------------------------------------
 # Ensure security headers are set as expected
