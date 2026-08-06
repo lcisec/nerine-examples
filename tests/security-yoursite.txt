@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------
+# Check for the presence of the .well-known files a site is expected to
+# publish. Every test case includes an implicit "compare status == 200", so
+# each request below asserts that the file is present and served.
+#
+# Point this at your own site with the -s flag for a single server or -S for a
+# file of servers, and delete whichever cases do not apply.
+#-----------------------------------------------------------------------------
+
+GET ${TARGET_SERVER}/.well-known/security.txt
+
+GET ${TARGET_SERVER}/.well-known/openid-configuration
+
+GET ${TARGET_SERVER}/.well-known/openpgpkey
