@@ -1,3 +1,2 @@
-https://google.com
-https://openai.com
-https://example.com
+https://lcisec.dev
+https://www.lcisec.dev
