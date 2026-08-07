@@ -1,36 +1,51 @@
 # nerine-examples
 
-Example scripts for [Nerine](https://lcisec.dev/products/nerine). Each one is a plain text
-file: a request, then the checks the response has to pass.
+Example scripts for [Nerine](https://lcisec.dev/products/nerine). A script is a plain text
+file. It holds a request and the checks the response has to pass.
 
 ## The scripts
 
 | Script | What it demonstrates | What it asserts |
 |---|---|---|
-| [`tests/up.txt`](tests/up.txt) | The smallest useful script — one request, no explicit checks | The target is reachable and returns `200` |
-| [`tests/nav.txt`](tests/nav.txt) | Checking rendered content across several pages in one script | Five pages on lcisec.com each return `200` and carry all six navigation links |
-| [`tests/security-headers.txt`](tests/security-headers.txt) | Header assertions, including negative ones and a regex | CSP falls back to `'self'` and allows no wildcard source, no `unsafe-inline`, no `unsafe-eval`; HSTS sets a max age with subdomain coverage and preloading |
-| [`tests/security-yoursite.txt`](tests/security-yoursite.txt) | A template to point at your own site | The `.well-known` files a site is expected to publish are present and served |
+| [`tests/up.txt`](tests/up.txt) | The smallest script that does anything — one request, no checks written out | The target answers and returns `200` |
+| [`tests/nav.txt`](tests/nav.txt) | Checking page content across several pages in one script | Five pages on lcisec.com return `200` and carry all six navigation links |
+| [`tests/security-headers.txt`](tests/security-headers.txt) | Header checks, including negative checks and a regex | CSP falls back to `'self'` and allows no wildcard source, no `unsafe-inline`, and no `unsafe-eval`. HSTS sets a max age, covers subdomains, and preloads |
+| [`tests/security-yoursite.txt`](tests/security-yoursite.txt) | A template to point at your own site | The `.well-known` files a site is expected to publish are served |
 
 ## Running them
 
-Every test case carries an implicit `compare status == 200`, so a request with no `compare`
-lines is already an assertion that the request succeeded.
+Every test case carries an implicit `compare status == 200`. A request with no `compare`
+lines still asserts that the request succeeded. That is the whole of `up.txt`.
 
-Scripts that use `${TARGET_SERVER}` are run against a target you supply — `-s` for a single
-server, `-S` for a file of servers. Both flags are Nerine Professional and Enterprise:
+A script that uses `${TARGET_SERVER}` needs a target. Use the `-s` flag for a single server
+or the `-S` flag for a file of servers. Both flags are Nerine Professional and Enterprise.
 
 ```
-nerine-pro -S targets.txt tests/up.txt tests/security-headers.txt
+nerine-pro -S targets.txt tests/security-headers.txt
 ```
 
-`nav.txt` names its URLs directly and runs under any version:
+This command checks the CSP and HSTS headers on every server in `targets.txt`.
+
+`nav.txt` names its URLs directly, so it takes no target and runs under any version.
 
 ```
 nerine tests/nav.txt
 ```
 
-`targets.txt` points at lcisec.dev, and `up.txt`, `nav.txt` and `security-headers.txt` all
-pass against it on a fresh clone. **`security-yoursite.txt` is the exception and is meant to
-fail** until you point it somewhere that publishes those files — treat it as a starting
-point, and delete whichever cases do not apply to you.
+This command reads five pages on lcisec.com and fails if a navigation link is missing.
+
+Nerine takes one file pattern, not a list of files. Quote the pattern so the shell hands it
+to Nerine instead of expanding it first.
+
+```
+nerine-pro -S targets.txt "tests/*.txt"
+```
+
+This command runs all four scripts against every server in `targets.txt`.
+
+`targets.txt` points at lcisec.dev. Run `up.txt`, `nav.txt`, or `security-headers.txt`
+against it on a fresh clone and they pass.
+
+Keep in mind, `security-yoursite.txt` is meant to fail. It asks for `.well-known` files that
+most sites do not serve, and lcisec.dev serves one of the three. Point it at your own site
+and delete the cases that do not apply to you.
