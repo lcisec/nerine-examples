@@ -7,7 +7,7 @@ file. It holds a request and the checks the response has to pass.
 
 | Script | What it demonstrates | What it asserts |
 |---|---|---|
-| [`tests/up.txt`](tests/up.txt) | The smallest script that does anything: one request, no checks written out | The target answers and returns `200` |
+| [`tests/up.txt`](tests/up.txt) | The smallest script that does anything, which is one request with no checks written out | The target answers and returns `200` |
 | [`tests/nav.txt`](tests/nav.txt) | Checking page content across several pages in one script | Five pages on lcisec.com return `200` and carry all six navigation links |
 | [`tests/security-headers.txt`](tests/security-headers.txt) | Header checks, including negative checks and a regex | CSP falls back to `'self'` and allows no wildcard source, no `unsafe-inline`, and no `unsafe-eval`. HSTS sets a max age, covers subdomains, and preloads |
 | [`tests/security-yoursite.txt`](tests/security-yoursite.txt) | A template to point at your own site | The `.well-known` files a site is expected to publish are served |
