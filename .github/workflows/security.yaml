@@ -24,4 +24,4 @@ jobs:
 
     - name: Execute Binary
       run: |
-        ./nerine-ent_linux_amd64 -S targets.txt tests/security.txt
+        ./nerine-ent_linux_amd64 -S targets.txt tests/security-headers.txt
