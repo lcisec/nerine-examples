@@ -3,6 +3,10 @@
 Example scripts for [Nerine](https://lcisec.dev/products/nerine). A script is a plain text
 file. It holds a request and the checks the response has to pass.
 
+The scripts in `tests/` are single files, each one demonstrating a part of the language.
+[`spec-driven/`](spec-driven) is a longer worked example that uses Nerine to hold an LLM
+agent to a specification while it builds a web application.
+
 ## The scripts
 
 | Script | What it demonstrates | What it asserts |
@@ -49,3 +53,15 @@ against it on a fresh clone and they pass.
 Keep in mind, `security-yoursite.txt` is meant to fail. It asks for `.well-known` files that
 most sites do not serve, and lcisec.dev serves one of the three. Point it at your own site
 and delete the cases that do not apply to you.
+
+## Building an application with an agent
+
+[`spec-driven/`](spec-driven) holds a specification for a small task list API, five Nerine
+scripts that cover it, and the instructions to hand an LLM agent. The agent writes the
+application. The scripts decide whether it is finished, and the agent is told it may not
+touch them.
+
+Unlike the scripts above, this example ships no application to run against. The
+specification and the scripts are the input, and the agent produces the rest. Like
+`nav.txt`, the scripts name their URLs directly, so they take no target and run under any
+version. See [`spec-driven/README.md`](spec-driven/README.md).

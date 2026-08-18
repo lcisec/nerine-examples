@@ -1,0 +1,59 @@
+#-----------------------------------------------------------------------------
+# The headers every response carries. Covers SPEC section 6.
+#
+# A header that is only set on the happy path is a header that is missing on
+# every error page, so each case below checks a different status code.
+#-----------------------------------------------------------------------------
+
+# On a 401.
+GET http://127.0.0.1:8080/api/tasks
+compare status == 401
+compare header content-type == application/json
+compare header content-security-policy contains default-src 'none'
+compare header content-security-policy contains frame-ancestors 'none'
+compare header content-security-policy !contains unsafe-inline
+compare header content-security-policy !contains unsafe-eval
+compare header x-content-type-options == nosniff
+compare header cache-control == no-store
+
+# On a 405, which is answered before authentication runs.
+PUT http://127.0.0.1:8080/api/tasks
+compare status == 405
+compare header content-type == application/json
+compare header content-security-policy contains default-src 'none'
+compare header x-content-type-options == nosniff
+compare header cache-control == no-store
+
+# On the 201 that creates a session.
+POST http://127.0.0.1:8080/api/session
+modify body username=demo&password=s3cr3t-demo-pw
+compare status == 201
+compare header content-type == application/json
+compare header content-security-policy contains default-src 'none'
+compare header x-content-type-options == nosniff
+compare header cache-control == no-store
+extract cookie csrf csrf_token [0-9a-f]{32}
+
+# On a 200.
+GET http://127.0.0.1:8080/api/tasks
+compare header content-type == application/json
+compare header content-security-policy contains default-src 'none'
+compare header x-content-type-options == nosniff
+compare header cache-control == no-store
+
+# On a 404.
+GET http://127.0.0.1:8080/api/tasks/00000000-0000-4000-8000-000000000000
+compare status == 404
+compare header content-type == application/json
+compare header content-security-policy contains default-src 'none'
+compare header x-content-type-options == nosniff
+compare header cache-control == no-store
+
+# On a 204, which carries the security headers but no body and so no content
+# type of its own.
+DELETE http://127.0.0.1:8080/api/session
+modify header X-CSRF-Token ${csrf}
+compare status == 204
+compare header content-security-policy contains default-src 'none'
+compare header x-content-type-options == nosniff
+compare header cache-control == no-store

@@ -1,0 +1,61 @@
+#-----------------------------------------------------------------------------
+# The life of a task, from creation to deletion. Covers SPEC section 5.
+#
+# Cookie jars are not shared between scripts, so this script logs in for
+# itself. It also works on one task that it creates and deletes, which keeps it
+# from colliding with the other scripts running beside it.
+#-----------------------------------------------------------------------------
+
+POST http://127.0.0.1:8080/api/session
+modify body username=demo&password=s3cr3t-demo-pw
+compare status == 201
+extract cookie csrf csrf_token [0-9a-f]{32}
+
+# Create a task. The body runs over several lines, so every line after the
+# first begins with a tab, which Nerine strips before sending the request.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {
+	"title": "nerine crud check"
+	}
+compare status == 201
+compare header location ~ /api/tasks/[0-9a-f-]{36}
+compare body ~ "title": *"nerine crud check"
+compare body ~ "done": *false
+extract body id [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+
+# Read the task back by the id the create response handed out.
+GET http://127.0.0.1:8080/api/tasks/${id}
+compare body contains ${id}
+compare body ~ "title": *"nerine crud check"
+compare body ~ "done": *false
+
+# The task appears in the collection.
+GET http://127.0.0.1:8080/api/tasks
+compare body ~ "title": *"nerine crud check"
+
+# Mark it done. A PATCH carries only the fields it changes and returns the
+# whole task.
+PATCH http://127.0.0.1:8080/api/tasks/${id}
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"done":true}
+compare body contains ${id}
+compare body ~ "title": *"nerine crud check"
+compare body ~ "done": *true
+
+# Delete it. A 204 carries no body to compare.
+DELETE http://127.0.0.1:8080/api/tasks/${id}
+modify header X-CSRF-Token ${csrf}
+compare status == 204
+
+# The task is gone.
+GET http://127.0.0.1:8080/api/tasks/${id}
+compare status == 404
+compare body ~ "error": *"task not found"
+
+# Deleting it a second time finds nothing to delete.
+DELETE http://127.0.0.1:8080/api/tasks/${id}
+modify header X-CSRF-Token ${csrf}
+compare status == 404

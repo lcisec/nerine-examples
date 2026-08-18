@@ -1,0 +1,38 @@
+#-----------------------------------------------------------------------------
+# Sessions. Covers SPEC sections 3.1 through 3.4.
+#
+# Every script gets its own cookie jar, so the session cookie set by the login
+# below is sent automatically by every test case after it. Nothing has to
+# carry it by hand.
+#
+# The default content type is application/x-www-form-urlencoded, which is what
+# the login request wants, so no test case here sets one.
+#-----------------------------------------------------------------------------
+
+# A bad password is rejected and hands out no session.
+POST http://127.0.0.1:8080/api/session
+modify body username=demo&password=wrong
+compare status == 401
+compare body ~ "error": *"invalid credentials"
+
+# A good password creates a session and returns both cookies.
+POST http://127.0.0.1:8080/api/session
+modify body username=demo&password=s3cr3t-demo-pw
+compare status == 201
+compare body ~ "username": *"demo"
+compare cookie session ~ [0-9a-f]{32}
+compare cookie csrf_token ~ [0-9a-f]{32}
+extract cookie csrf csrf_token [0-9a-f]{32}
+
+# The cookie jar alone is enough to read tasks. A read needs no CSRF token.
+GET http://127.0.0.1:8080/api/tasks
+
+# Ending the session needs the token that came back with the login.
+DELETE http://127.0.0.1:8080/api/session
+modify header X-CSRF-Token ${csrf}
+compare status == 204
+
+# The logout response expired the cookie, so this request is anonymous again.
+GET http://127.0.0.1:8080/api/tasks
+compare status == 401
+compare body ~ "error": *"authentication required"

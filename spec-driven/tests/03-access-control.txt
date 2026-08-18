@@ -1,0 +1,61 @@
+#-----------------------------------------------------------------------------
+# Access control. Covers SPEC section 4 and the precedence rules in section 7.
+#
+# The cases below pin down which of two possible failures wins when a request
+# is wrong in more than one way. An anonymous write is 401 rather than 403,
+# because authentication is checked before the CSRF token.
+#-----------------------------------------------------------------------------
+
+# An anonymous read is turned away.
+GET http://127.0.0.1:8080/api/tasks
+compare status == 401
+compare body ~ "error": *"authentication required"
+
+# So is an anonymous read of a single task.
+GET http://127.0.0.1:8080/api/tasks/00000000-0000-4000-8000-000000000000
+compare status == 401
+compare body ~ "error": *"authentication required"
+
+# An anonymous write fails on the session, not on the missing CSRF token.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify body {"title":"never created"}
+compare status == 401
+compare body ~ "error": *"authentication required"
+
+# Log in. This script never uses the CSRF token it was given, because every
+# case below is about what happens when a write does not carry a good one.
+POST http://127.0.0.1:8080/api/session
+modify body username=demo&password=s3cr3t-demo-pw
+compare status == 201
+
+# A session is not enough on its own. A write with no CSRF token is refused.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify body {"title":"never created"}
+compare status == 403
+compare body ~ "error": *"invalid csrf token"
+
+# A well formed token that belongs to no session is refused the same way.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token 00000000000000000000000000000000
+modify body {"title":"never created"}
+compare status == 403
+compare body ~ "error": *"invalid csrf token"
+
+# A PATCH is a write and is held to the same rule.
+PATCH http://127.0.0.1:8080/api/tasks/00000000-0000-4000-8000-000000000000
+modify type application/json
+modify body {"done":true}
+compare status == 403
+
+# So is a DELETE, including the one that ends the session.
+DELETE http://127.0.0.1:8080/api/session
+compare status == 403
+compare body ~ "error": *"invalid csrf token"
+
+# Reads still need no token, the session survived the refusals above, and none
+# of the refused writes created anything.
+GET http://127.0.0.1:8080/api/tasks
+compare body !~ "title": *"never created"
