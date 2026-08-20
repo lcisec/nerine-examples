@@ -69,7 +69,11 @@ edition. See [`spec-driven/README.md`](spec-driven/README.md).
 
 ## Writing tests with an LLM
 
-[`writing-tests/`](writing-tests) holds a different kind of reference: not an example to
-run, but a complete description of the Nerine scripting language meant to be handed to an
-LLM alongside a specification, so the model can write the Nerine scripts that check it
-directly. See [`writing-tests/README.md`](writing-tests/README.md).
+[`writing-tests/REFERENCE.md`](writing-tests/REFERENCE.md) is a different kind of
+reference: not an example to run, but a complete, self-contained description of the
+Nerine scripting language, meant to be handed to an LLM in the same prompt as a
+specification so the model can write the Nerine scripts that check it directly, with
+nothing else. Where `spec-driven/` hands an agent a specification and scripts that
+already exist and has it build the application those scripts hold it to, here there is
+no application and no scripts yet — the model's job is to produce the scripts
+themselves.
