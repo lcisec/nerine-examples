@@ -27,7 +27,7 @@ extract body id [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
 
 # Read the task back by the id the create response handed out.
 GET http://127.0.0.1:8080/api/tasks/${id}
-compare body contains ${id}
+compare body ~ "id": *"${id}"
 compare body ~ "title": *"nerine crud check"
 compare body ~ "done": *false
 
@@ -47,7 +47,7 @@ PATCH http://127.0.0.1:8080/api/tasks/${id}
 modify type application/json
 modify header X-CSRF-Token ${csrf}
 modify body {"done":true}
-compare body contains ${id}
+compare body ~ "id": *"${id}"
 compare body ~ "title": *"nerine crud check"
 compare body ~ "done": *true
 

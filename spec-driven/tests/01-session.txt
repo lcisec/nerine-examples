@@ -8,10 +8,9 @@
 # The default content type is application/x-www-form-urlencoded, which is what
 # the login request wants, so no test case here sets one.
 #
-# `compare header set-cookie` sees only the first Set-Cookie header a response
-# carries. SPEC 3.2 puts csrf_token first for exactly this reason, which is
-# what lets the login response below check csrf_token's attributes. Logout
-# only ever sets one cookie, so it needs no such ordering to reach session's.
+# compare cookie reaches only a cookie's value. compare cookie-raw compares
+# the whole Set-Cookie line for that cookie, which is what the attribute
+# checks below need.
 #-----------------------------------------------------------------------------
 
 # A bad password is rejected and hands out no session.
@@ -27,9 +26,9 @@ compare status == 201
 compare body ~ "username": *"demo"
 compare cookie session ~ [0-9a-f]{32}
 compare cookie csrf_token ~ [0-9a-f]{32}
-compare header set-cookie contains Path=/
-compare header set-cookie contains SameSite=Strict
-compare header set-cookie !contains HttpOnly
+compare cookie-raw csrf_token contains Path=/
+compare cookie-raw csrf_token contains SameSite=Strict
+compare cookie-raw csrf_token !contains HttpOnly
 extract cookie csrf csrf_token [0-9a-f]{32}
 
 # The cookie jar alone is enough to read tasks. A read needs no CSRF token.
@@ -39,9 +38,9 @@ GET http://127.0.0.1:8080/api/tasks
 DELETE http://127.0.0.1:8080/api/session
 modify header X-CSRF-Token ${csrf}
 compare status == 204
-compare header set-cookie contains Path=/
-compare header set-cookie contains HttpOnly
-compare header set-cookie contains SameSite=Strict
+compare cookie-raw session contains Path=/
+compare cookie-raw session contains HttpOnly
+compare cookie-raw session contains SameSite=Strict
 
 # The logout response expired the cookie, so this request is anonymous again.
 GET http://127.0.0.1:8080/api/tasks

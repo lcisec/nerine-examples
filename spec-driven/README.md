@@ -44,8 +44,12 @@ nerine "tests/*.txt"
 ```
 
 They name `http://127.0.0.1:8080` directly rather than taking a target from the
-`-s` flag, so they run under any version of Nerine, Personal included. Point the
+`-s` flag, so they run under any edition of Nerine, Personal included. Point the
 server somewhere else and the address in the scripts has to change with it.
+
+They need Nerine v0.4.0 or later: `01-session.txt` checks cookie attributes with
+`compare cookie-raw`, and `02-tasks.txt` matches an extracted id inside a `~`
+pattern.
 
 ## What to expect
 
