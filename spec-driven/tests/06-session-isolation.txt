@@ -1,0 +1,58 @@
+#-----------------------------------------------------------------------------
+# Session isolation. Covers the last sentence of SPEC 3.4: ending one session
+# leaves every other session working.
+#
+# One script gets one cookie jar, and a second login overwrites the jar's
+# session cookie with the first, so the jar alone cannot hold two sessions at
+# once to compare them. `modify header Cookie` gets around that: unlike
+# `modify cookie`, which appends to whatever the jar already sent, `modify
+# header` replaces a header outright, and Cookie is a header like any other.
+# Setting it by hand for one request swaps out the jar's session for
+# whichever one the script captured earlier.
+#-----------------------------------------------------------------------------
+
+# Two independent logins. Logging in twice in one script is not two users, it
+# is what proves the two sessions do not know about each other.
+POST http://127.0.0.1:8080/api/session
+modify body username=demo&password=s3cr3t-demo-pw
+compare status == 201
+extract cookie sessionA session [0-9a-f]{32}
+extract cookie csrfA csrf_token [0-9a-f]{32}
+
+POST http://127.0.0.1:8080/api/session
+modify body username=demo&password=s3cr3t-demo-pw
+compare status == 201
+extract cookie sessionB session [0-9a-f]{32}
+extract cookie csrfB csrf_token [0-9a-f]{32}
+
+# The jar now holds B, so ending the session here needs no override.
+DELETE http://127.0.0.1:8080/api/session
+modify header X-CSRF-Token ${csrfB}
+compare status == 204
+
+# B is truly gone, not just missing from the jar. Handing back its captured
+# cookie by hand and getting refused proves the server invalidated it, rather
+# than the jar simply having nothing left to send.
+GET http://127.0.0.1:8080/api/tasks
+modify header Cookie session=${sessionB}; csrf_token=${csrfB}
+compare status == 401
+compare body ~ "error": *"authentication required"
+
+# A still works, for a read and for a write, even though B logged in after A,
+# and even though B has since been logged out.
+GET http://127.0.0.1:8080/api/tasks
+modify header Cookie session=${sessionA}; csrf_token=${csrfA}
+compare status == 200
+
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header Cookie session=${sessionA}; csrf_token=${csrfA}
+modify header X-CSRF-Token ${csrfA}
+modify body {"title":"session isolation check"}
+compare status == 201
+extract body isoid [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+
+DELETE http://127.0.0.1:8080/api/tasks/${isoid}
+modify header Cookie session=${sessionA}; csrf_token=${csrfA}
+modify header X-CSRF-Token ${csrfA}
+compare status == 204

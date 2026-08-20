@@ -1,0 +1,104 @@
+#-----------------------------------------------------------------------------
+# Bad requests. Covers SPEC sections 5.1 through 5.5.
+#
+# The first two cases run before the login on purpose. Path and method are
+# checked before authentication, so an unsupported method is 405 even when
+# nobody is logged in.
+#-----------------------------------------------------------------------------
+
+PUT http://127.0.0.1:8080/api/tasks
+compare status == 405
+compare body ~ "error": *"method not allowed"
+compare header allow contains GET
+compare header allow contains POST
+
+PUT http://127.0.0.1:8080/api/tasks/00000000-0000-4000-8000-000000000000
+compare status == 405
+compare header allow contains PATCH
+compare header allow contains DELETE
+
+POST http://127.0.0.1:8080/api/session
+modify body username=demo&password=s3cr3t-demo-pw
+compare status == 201
+extract cookie csrf csrf_token [0-9a-f]{32}
+
+# A form encoded body is the wrong content type for this endpoint. Nerine sends
+# that type by default, so this case simply leaves the type alone.
+POST http://127.0.0.1:8080/api/tasks
+modify header X-CSRF-Token ${csrf}
+modify body title=wrong+content+type
+compare status == 415
+compare body ~ "error": *"unsupported media type"
+
+# A body that is not JSON at all.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"title":
+compare status == 400
+compare body ~ "error": *"malformed json"
+
+# Valid JSON with no title.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"done":false}
+compare status == 400
+compare body ~ "error": *"title is required"
+
+# An empty title.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"title":""}
+compare status == 400
+compare body ~ "error": *"title is required"
+
+# A title of nothing but whitespace is empty once it is trimmed. Nerine reads a
+# command line as whitespace separated fields and rejoins them with a single
+# space, so a run of spaces in a body arrives as one. One is enough here.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"title":" "}
+compare status == 400
+compare body ~ "error": *"title is required"
+
+# The 200 character limit is exactly 200. This title is accepted, and the case
+# cleans up after itself so it leaves nothing behind for the scripts running
+# beside it.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"title":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+compare status == 201
+extract body longid [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+
+DELETE http://127.0.0.1:8080/api/tasks/${longid}
+modify header X-CSRF-Token ${csrf}
+compare status == 204
+
+# One character past the limit is rejected instead.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"title":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+compare status == 400
+compare body ~ "error": *"title is too long"
+
+# A well formed id that belongs to no task.
+GET http://127.0.0.1:8080/api/tasks/00000000-0000-4000-8000-000000000000
+compare status == 404
+compare body ~ "error": *"task not found"
+
+PATCH http://127.0.0.1:8080/api/tasks/00000000-0000-4000-8000-000000000000
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"done":true}
+compare status == 404
+compare body ~ "error": *"task not found"
+
+DELETE http://127.0.0.1:8080/api/tasks/00000000-0000-4000-8000-000000000000
+modify header X-CSRF-Token ${csrf}
+compare status == 404
+compare body ~ "error": *"task not found"
