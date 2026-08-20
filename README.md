@@ -64,4 +64,4 @@ touch them.
 Unlike the scripts above, this example ships no application to run against. The
 specification and the scripts are the input, and the agent produces the rest. Like
 `nav.txt`, the scripts name their URLs directly, so they take no target and run under any
-edition. They do need Nerine v0.4.0 or later; see [`spec-driven/README.md`](spec-driven/README.md).
+edition. See [`spec-driven/README.md`](spec-driven/README.md).
