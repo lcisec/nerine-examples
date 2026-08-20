@@ -1,9 +1,5 @@
 #-----------------------------------------------------------------------------
 # The life of a task, from creation to deletion. Covers SPEC section 5.
-#
-# Cookie jars are not shared between scripts, so this script logs in for
-# itself. It also works on one task that it creates and deletes, which keeps it
-# from colliding with the other scripts running beside it.
 #-----------------------------------------------------------------------------
 
 POST http://127.0.0.1:8080/api/session
