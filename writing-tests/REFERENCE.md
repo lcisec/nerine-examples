@@ -86,19 +86,11 @@ modify type content-type
 
 A test case can carry any number of `modify` lines. `header` and `type`
 lines apply in the order written and each replaces whatever the header held
-before (a later line for the same header wins). `cookie` lines add a cookie
-rather than replacing one — if the jar already holds a cookie under that
-name, the request carries both, and the jar's is always the one a server
-sees first when it reads a cookie by name. `modify cookie` therefore cannot
-override a cookie the jar already set. To do that, replace the whole
-`Cookie` header instead:
-
-```
-modify header Cookie session=newvalue; other=value
-```
-
-`modify header` replaces a header outright, where `modify cookie` only adds
-to it, and `Cookie` is a header like any other.
+before (a later line for the same header wins). `cookie` lines take
+precedence over the cookie jar: a `modify cookie` for a name the jar already
+holds is the one a server sees, and the jar's is still sent, but second.
+Other cookies the jar holds are unaffected and still reach the request
+automatically.
 
 Every `modify` line's value has `${var}` references resolved against the
 script's variables (see Variables) before it is applied.
