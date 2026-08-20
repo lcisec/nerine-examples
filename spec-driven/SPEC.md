@@ -49,12 +49,22 @@ The `session` cookie is `HttpOnly` because no client script needs to read it.
 The `csrf_token` cookie is not, because the client has to read it to echo it
 back per 4.2.
 
+The response writes the `csrf_token` `Set-Cookie` header before the `session`
+one. A client never has to look at the order two cookies arrive in, so this is
+a constraint on the server rather than on anyone using it, and it exists so
+each cookie's attributes can be checked: a lookup by header name sees only the
+first `Set-Cookie` header a response carries, and putting `csrf_token` first is
+what makes it the one either lookup reaches.
+
 3.3. On failure the response is `401` with the body
 `{"error":"invalid credentials"}` and no cookies.
 
 3.4. `DELETE /api/session` ends the session and responds `204`. The response
-expires the `session` cookie. Each login creates an independent session, and
-ending one session leaves every other session working.
+expires the `session` cookie, repeating its `Path`, `HttpOnly`, and `SameSite`
+attributes from 3.2 while doing so, which is what lets a client actually clear
+it rather than set a second, competing cookie under a different scope. Each
+login creates an independent session, and ending one session leaves every
+other session working.
 
 ## 4. Access control
 
@@ -76,7 +86,7 @@ Every response in this section is JSON. A task serializes as
 
 | Request | Success | Notes |
 |---|---|---|
-| `GET /api/tasks` | `200` | A JSON array, `[]` when there are no tasks |
+| `GET /api/tasks` | `200` | Always a JSON array, never the literal `null`, whether or not it holds tasks |
 | `POST /api/tasks` | `201` | Body `{"title":"..."}`. Sets `Location` to `/api/tasks/{id}` |
 | `GET /api/tasks/{id}` | `200` | The task |
 | `PATCH /api/tasks/{id}` | `200` | Body carries `title`, `done`, or both. Returns the updated task |

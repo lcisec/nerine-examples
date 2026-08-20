@@ -64,6 +64,28 @@ modify body {"title":" "}
 compare status == 400
 compare body ~ "error": *"title is required"
 
+# The 200 character limit is exactly 200. This title is accepted, and the case
+# cleans up after itself so it leaves nothing behind for the scripts running
+# beside it.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"title":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+compare status == 201
+extract body longid [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+
+DELETE http://127.0.0.1:8080/api/tasks/${longid}
+modify header X-CSRF-Token ${csrf}
+compare status == 204
+
+# One character past the limit is rejected instead.
+POST http://127.0.0.1:8080/api/tasks
+modify type application/json
+modify header X-CSRF-Token ${csrf}
+modify body {"title":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+compare status == 400
+compare body ~ "error": *"title is too long"
+
 # A well formed id that belongs to no task.
 GET http://127.0.0.1:8080/api/tasks/00000000-0000-4000-8000-000000000000
 compare status == 404

@@ -14,7 +14,7 @@ no longer decides whether the code is right.
 | File | Role |
 |---|---|
 | [`SPEC.md`](SPEC.md) | The specification for a small task list API. Written for a person to read and an agent to implement |
-| [`tests/`](tests) | Five Nerine scripts covering the acceptance criteria for the specification |
+| [`tests/`](tests) | Six Nerine scripts covering the acceptance criteria for the specification |
 | [`AGENTS.md`](AGENTS.md) | The instructions handed to the agent. Copy it into the project as `AGENTS.md` or `CLAUDE.md` |
 
 There is no application here yet, so the scripts have nothing to run against
@@ -27,6 +27,7 @@ until your agent builds one.
 | [`03-access-control.txt`](tests/03-access-control.txt) | Anonymous requests, missing and wrong CSRF tokens, and which failure wins |
 | [`04-validation.txt`](tests/04-validation.txt) | Bad bodies, bad content types, unknown ids, and unsupported methods |
 | [`05-response-headers.txt`](tests/05-response-headers.txt) | The security headers, checked on six different status codes |
+| [`06-session-isolation.txt`](tests/06-session-isolation.txt) | Two independent logins, proving that ending one leaves the other working |
 
 ## Using it
 
@@ -59,5 +60,5 @@ ERR comparison `compare status == 201` failed line=14 script=02-tasks.txt test="
 ```
 
 A silent run is not the same as a finished application. The scripts cover most
-of the specification but not all of it, and `AGENTS.md` lists what they leave
-out so the agent builds the rest. Check those by hand before you call it done.
+of the specification but not all of it -- SPEC.md still has to be read in full,
+not just satisfied one script at a time.

@@ -60,17 +60,6 @@ script, the line, and the test case:
 ERR comparison `compare status == 201` failed line=14 script=02-tasks.txt test="POST http://127.0.0.1:8080/api/tasks"
 ```
 
-## What the scripts do not check
-
-Build these from the specification. Nothing will tell you that you got them
-wrong.
-
-- The `HttpOnly`, `Path`, and `SameSite` attributes on both cookies, per 3.2.
-- The 200 character limit on a title, per 5.3.
-- That ending one session leaves other sessions working, per 3.4.
-- That `GET /api/tasks` returns `[]` rather than `null` when there are no
-  tasks, per 5.
-
 ## Things that will cost you a run
 
 - A test case with no `compare status` line still asserts `200`. Every other

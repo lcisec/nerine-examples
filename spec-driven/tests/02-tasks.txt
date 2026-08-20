@@ -31,9 +31,15 @@ compare body contains ${id}
 compare body ~ "title": *"nerine crud check"
 compare body ~ "done": *false
 
-# The task appears in the collection.
+# The task appears in the collection, which is always a JSON array. Checking
+# that on every GET, rather than only when the collection happens to be
+# empty, is what makes the never-null guarantee checkable at all: this script
+# runs beside others that are creating and deleting tasks of their own, so
+# there is no moment it can prove the collection is empty to begin with.
 GET http://127.0.0.1:8080/api/tasks
 compare body ~ "title": *"nerine crud check"
+compare body ~ ^\[
+compare body !~ ^null$
 
 # Mark it done. A PATCH carries only the fields it changes and returns the
 # whole task.

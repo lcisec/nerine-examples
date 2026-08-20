@@ -56,7 +56,7 @@ and delete the cases that do not apply to you.
 
 ## Building an application with an agent
 
-[`spec-driven/`](spec-driven) holds a specification for a small task list API, five Nerine
+[`spec-driven/`](spec-driven) holds a specification for a small task list API, six Nerine
 scripts that cover it, and the instructions to hand an LLM agent. The agent writes the
 application. The scripts decide whether it is finished, and the agent is told it may not
 touch them.
