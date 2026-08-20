@@ -5,7 +5,8 @@ file. It holds a request and the checks the response has to pass.
 
 The scripts in `tests/` are single files, each one demonstrating a part of the language.
 [`spec-driven/`](spec-driven) is a longer worked example that uses Nerine to hold an LLM
-agent to a specification while it builds a web application.
+agent to a specification while it builds a web application. [`writing-tests/`](writing-tests)
+holds a reference for handing an LLM a specification and getting Nerine scripts back.
 
 ## The scripts
 
@@ -65,3 +66,14 @@ Unlike the scripts above, this example ships no application to run against. The
 specification and the scripts are the input, and the agent produces the rest. Like
 `nav.txt`, the scripts name their URLs directly, so they take no target and run under any
 edition. See [`spec-driven/README.md`](spec-driven/README.md).
+
+## Writing tests with an LLM
+
+[`writing-tests/REFERENCE.md`](writing-tests/REFERENCE.md) is a different kind of
+reference: not an example to run, but a complete, self-contained description of the
+Nerine scripting language, meant to be handed to an LLM in the same prompt as a
+specification so the model can write the Nerine scripts that check it directly, with
+nothing else. Where `spec-driven/` hands an agent a specification and scripts that
+already exist and has it build the application those scripts hold it to, here there is
+no application and no scripts yet — the model's job is to produce the scripts
+themselves.
